@@ -1,0 +1,9 @@
+# Checkov policy-as-code config — fail PR on any critical/high
+framework:
+  - terraform
+soft_fail: false
+check:
+  - CKV_AWS_19   # S3 encryption
+  - CKV_AWS_21   # S3 versioning
+  - CKV_AWS_144  # Cross-region backup
+skip_check: []
