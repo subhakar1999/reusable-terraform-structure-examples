@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terraform Infrastructure — Reusable & Secure Cloud Framework</title>
+  <meta name="description" content="Production-ready multi-environment Terraform framework featuring reusable modules, zero-trust remote state, least-privilege IAM, policy-as-code, and automated CI/CD.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+            },
+            tf: {
+              purple: '#7B42BC',
+              indigo: '#5C4EE5',
+              dark: '#0e1117',
+              card: '#161b22',
+              border: '#30363d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8b949e;
+    }
+    
+    .glow-cyan {
+      box-shadow: 0 0 40px -10px rgba(45, 212, 191, 0.25);
+    }
+    .glow-purple {
+      box-shadow: 0 0 40px -10px rgba(123, 66, 188, 0.35);
+    }
+    .code-editor {
+      background: #0d1117;
+    }
+    .grid-pattern {
+      background-size: 32px 32px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 font-sans min-h-screen selection:bg-teal-500 selection:text-black">
+
+  <!-- Top Announcement Banner -->
+  <div class="bg-gradient-to-r from-purple-900/40 via-teal-900/30 to-blue-900/40 border-b border-slate-800 text-xs py-2 px-4 text-center">
+    <div class="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+        Vercel Ready
+      </span>
+      <span class="text-slate-300">Terraform Reusable & Secure Cloud Architecture Showcase</span>
+      <span class="text-slate-500">|</span>
+      <a href="#deploy-guide" class="text-teal-400 hover:text-teal-300 underline font-medium flex items-center gap-1">
+        Deploy your own copy in 60s <i data-lucide="arrow-right" class="w-3 h-3"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#090d16]/80 border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-teal-400 p-[1px] flex items-center justify-center shadow-lg">
+          <div class="w-full h-full bg-[#0d1117] rounded-[11px] flex items-center justify-center">
+            <i data-lucide="layers" class="w-5 h-5 text-teal-400"></i>
+          </div>
+        </div>
+        <div>
+          <span class="font-bold text-sm tracking-tight text-white flex items-center gap-1.5">
+            Terraform<span class="text-teal-400">Secure</span>
+            <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">v1.9+</span>
+          </span>
+          <p class="text-[11px] text-slate-400 font-mono -mt-0.5">Reusable Enterprise Blueprint</p>
+        </div>
+      </div>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800">
+        <a href="#architecture" class="nav-item px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5">
+          <i data-lucide="network" class="w-3.5 h-3.5 text-teal-400"></i> Architecture
+        </a>
+        <a href="#code-explorer" class="nav-item px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5">
+          <i data-lucide="folder-code" class="w-3.5 h-3.5 text-indigo-400"></i> Code Explorer
+        </a>
+        <a href="#environments" class="nav-item px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5">
+          <i data-lucide="boxes" class="w-3.5 h-3.5 text-blue-400"></i> Environments
+        </a>
+        <a href="#security" class="nav-item px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Security
+        </a>
+        <a href="#cli-simulator" class="nav-item px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all flex items-center gap-1.5">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-amber-400"></i> CLI Simulator
+        </a>
+      </nav>
+
+      <!-- Action CTA -->
+      <div class="flex items-center gap-3">
+        <a href="#deploy-guide" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold transition shadow-lg shadow-teal-500/20">
+          <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
+          <span>Deploy to Vercel</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-20 overflow-hidden grid-pattern border-b border-slate-800/60">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#090d16]/70 to-[#090d16] pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      
+      <!-- Badges -->
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-6">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-300 border border-purple-500/30">
+          <i data-lucide="boxes" class="w-3.5 h-3.5"></i> 4 Composable Modules
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-teal-500/10 text-teal-300 border border-teal-500/30">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i> S3 KMS + DynamoDB Lock
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/30">
+          <i data-lucide="key-round" class="w-3.5 h-3.5"></i> Zero-Secret CI/CD (OIDC)
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Checkov & tfsec Enforced
+        </span>
+      </div>
+
+      <!-- Main Heading -->
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+          Reusable & Secure <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-indigo-400">
+            Infrastructure as Code
+          </span>
+        </h1>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">
+          A production-grade Terraform framework separating reusable modules from thin environment wrappers. Built from the ground up for strict cloud security, state isolation, policy-as-code validation, and continuous delivery.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <a href="#architecture" class="px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg shadow-teal-500/20 transition">
+            <i data-lucide="eye" class="w-4 h-4"></i> Explore Architecture
+          </a>
+          <a href="#code-explorer" class="px-5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-white border border-slate-700 text-xs sm:text-sm font-semibold flex items-center gap-2 transition">
+            <i data-lucide="code" class="w-4 h-4"></i> Browse Source Code
+          </a>
+          <a href="#deploy-guide" class="px-5 py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs sm:text-sm font-semibold flex items-center gap-2 transition">
+            <i data-lucide="zap" class="w-4 h-4"></i> Deploy to Vercel
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Bar -->
+      <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-center backdrop-blur-sm">
+          <div class="text-2xl font-bold text-teal-400 font-mono">100%</div>
+          <div class="text-xs text-slate-400 mt-1">Remote Encrypted State</div>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-center backdrop-blur-sm">
+          <div class="text-2xl font-bold text-indigo-400 font-mono">3 Envs</div>
+          <div class="text-xs text-slate-400 mt-1">Dev, Staging & Prod</div>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-center backdrop-blur-sm">
+          <div class="text-2xl font-bold text-cyan-400 font-mono">0 Static Keys</div>
+          <div class="text-xs text-slate-400 mt-1">AWS IAM OIDC Assumed</div>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-center backdrop-blur-sm">
+          <div class="text-2xl font-bold text-emerald-400 font-mono">2 Scanners</div>
+          <div class="text-xs text-slate-400 mt-1">Checkov + tfsec in CI</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1: Interactive Architecture Visualizer -->
+  <section id="architecture" class="py-16 border-b border-slate-800/80 bg-[#0c101c]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-teal-400 mb-1">
+            <i data-lucide="network" class="w-3.5 h-3.5"></i> Interactive Visualizer
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Cloud Topology & Resource Hierarchy</h2>
+          <p class="text-slate-400 text-xs sm:text-sm mt-1">Click on any cloud module or service node below to inspect its configuration and security parameters.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400">View Active Environment:</span>
+          <div class="inline-flex bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs font-medium" id="env-selector-buttons">
+            <button onclick="setArchEnv('dev')" id="btn-env-dev" class="px-2.5 py-1 rounded bg-teal-500 text-slate-950 font-bold transition">Dev</button>
+            <button onclick="setArchEnv('staging')" id="btn-env-staging" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition">Staging</button>
+            <button onclick="setArchEnv('prod')" id="btn-env-prod" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition">Prod</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Architecture Canvas -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Interactive Cloud Diagram (Left 8 Cols) -->
+        <div class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
+          
+          <!-- AWS Region Badge -->
+          <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs font-mono font-bold text-slate-300">AWS Region: <span class="text-teal-400" id="arch-region">us-east-1</span></span>
+            </div>
+            <span class="text-xs font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700" id="arch-vpc-cidr">VPC CIDR: 10.10.0.0/16</span>
+          </div>
+
+          <!-- Cloud Boundary Visualizer -->
+          <div class="space-y-4">
+            
+            <!-- VPC Outer Box -->
+            <div class="border-2 border-indigo-500/40 bg-indigo-950/10 rounded-xl p-4 transition-all">
+              <div class="flex items-center justify-between mb-3">
+                <button onclick="selectComponent('vpc')" class="flex items-center gap-2 group text-left">
+                  <div class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-black transition">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-white group-hover:text-teal-300 transition flex items-center gap-1.5">
+                      VPC Module: <span id="arch-vpc-name" class="font-mono text-indigo-300">myapp-dev-vpc</span>
+                      <i data-lucide="info" class="w-3 h-3 text-slate-400"></i>
+                    </span>
+                    <span class="text-[10px] text-slate-400 block">DNS hostnames enabled &bull; Multi-AZ subnet splitting</span>
+                  </div>
+                </button>
+                <span class="text-[10px] font-mono bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/20" id="arch-az-count">2 AZs Active</span>
+              </div>
+
+              <!-- Subnet Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                
+                <!-- Public Subnet Tier -->
+                <div class="border border-cyan-500/30 bg-cyan-950/20 rounded-lg p-3">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[11px] font-bold text-cyan-300 flex items-center gap-1">
+                      <i data-lucide="globe" class="w-3.5 h-3.5 text-cyan-400"></i> Public Tier (Ingress)
+                    </span>
+                    <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-800">map_public_ip = false</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 mb-2">IGW connected &bull; Strict: No auto-allocated public IPs</div>
+                  <div class="grid grid-cols-2 gap-2 text-[10px] font-mono">
+                    <div class="bg-slate-900/80 p-2 rounded border border-cyan-900/50 text-slate-300">
+                      <span class="text-slate-500 block text-[9px]">AZ-a</span>
+                      <span id="subnet-pub-0">10.10.0.0/24</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2 rounded border border-cyan-900/50 text-slate-300">
+                      <span class="text-slate-500 block text-[9px]">AZ-b</span>
+                      <span id="subnet-pub-1">10.10.1.0/24</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Private Subnet Tier -->
+                <div class="border border-purple-500/30 bg-purple-950/20 rounded-lg p-3">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[11px] font-bold text-purple-300 flex items-center gap-1">
+                      <i data-lucide="shield" class="w-3.5 h-3.5 text-purple-400"></i> Private Tier (Compute)
+                    </span>
+                    <span class="text-[9px] font-mono text-purple-400 bg-purple-950/40 px-1.5 py-0.5 rounded border border-purple-800">Isolated</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 mb-2">No internet gateway &bull; Internal microservices</div>
+                  <div class="grid grid-cols-2 gap-2 text-[10px] font-mono mb-2">
+                    <div class="bg-slate-900/80 p-2 rounded border border-purple-900/50 text-slate-300">
+                      <span class="text-slate-500 block text-[9px]">AZ-a</span>
+                      <span id="subnet-priv-0">10.10.100.0/24</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2 rounded border border-purple-900/50 text-slate-300">
+                      <span class="text-slate-500 block text-[9px]">AZ-b</span>
+                      <span id="subnet-priv-1">10.10.101.0/24</span>
+                    </div>
+                  </div>
+
+                  <!-- EC2 Node Card -->
+                  <button onclick="selectComponent('ec2')" class="w-full text-left bg-slate-900 hover:bg-slate-800 border border-slate-700/80 rounded p-2 flex items-center justify-between transition group">
+                    <div class="flex items-center gap-2">
+                      <div class="p-1 rounded bg-teal-500/20 text-teal-400">
+                        <i data-lucide="server" class="w-3.5 h-3.5"></i>
+                      </div>
+                      <div>
+                        <div class="text-[11px] font-bold text-white group-hover:text-teal-300 transition flex items-center gap-1">
+                          EC2 Module: <span id="arch-ec2-type" class="font-mono text-teal-400">t3.micro</span>
+                        </div>
+                        <div class="text-[9px] text-slate-400">AL2023 AMI &bull; IMDSv2 Enforced &bull; EBS KMS Encrypted</div>
+                      </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-3 h-3 text-slate-500 group-hover:text-teal-400 transition"></i>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- AWS State & Security Services Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              
+              <!-- S3 Backend State -->
+              <button onclick="selectComponent('backend')" class="text-left bg-slate-900/80 hover:bg-slate-800 border border-amber-500/30 rounded-xl p-3 transition group">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <div class="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 group-hover:bg-amber-400 group-hover:text-black transition">
+                    <i data-lucide="database" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-white group-hover:text-amber-300 transition block">S3 Remote State</span>
+                    <span class="text-[10px] text-slate-400 font-mono">my-iac-tfstate-prod</span>
+                  </div>
+                </div>
+                <div class="text-[10px] text-slate-400 space-y-0.5">
+                  <div>&bull; SSE: <span class="text-amber-400 font-mono">aws:kms</span></div>
+                  <div>&bull; Versioning: <span class="text-emerald-400 font-mono">Enabled</span></div>
+                </div>
+              </button>
+
+              <!-- DynamoDB Lock -->
+              <button onclick="selectComponent('dynamodb')" class="text-left bg-slate-900/80 hover:bg-slate-800 border border-red-500/30 rounded-xl p-3 transition group">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <div class="p-1.5 rounded-lg bg-red-500/20 text-red-400 group-hover:bg-red-400 group-hover:text-black transition">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-white group-hover:text-red-300 transition block">DynamoDB Lock</span>
+                    <span class="text-[10px] text-slate-400 font-mono">terraform-locks</span>
+                  </div>
+                </div>
+                <div class="text-[10px] text-slate-400 space-y-0.5">
+                  <div>&bull; Hash key: <span class="text-red-400 font-mono">LockID (S)</span></div>
+                  <div>&bull; Mode: <span class="text-slate-300 font-mono">Pay Per Request</span></div>
+                </div>
+              </button>
+
+              <!-- IAM Least Privilege & OIDC -->
+              <button onclick="selectComponent('iam')" class="text-left bg-slate-900/80 hover:bg-slate-800 border border-emerald-500/30 rounded-xl p-3 transition group">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <div class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-400 group-hover:text-black transition">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-white group-hover:text-emerald-300 transition block">IAM Least Privilege</span>
+                    <span class="text-[10px] text-slate-400 font-mono">OIDC + No Wildcards</span>
+                  </div>
+                </div>
+                <div class="text-[10px] text-slate-400 space-y-0.5">
+                  <div>&bull; Actions: <span class="text-emerald-400 font-mono">s3:GetObject, List</span></div>
+                  <div>&bull; Zero static keys in GitHub</div>
+                </div>
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Component Inspector Panel (Right 4 Cols) -->
+        <div class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col justify-between" id="inspector-card">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <span class="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i> Component Inspector
+              </span>
+              <span id="inspector-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20">
+                modules/vpc
+              </span>
+            </div>
+
+            <div class="mt-4">
+              <h3 id="inspector-title" class="text-lg font-bold text-white mb-1">VPC Infrastructure Module</h3>
+              <p id="inspector-desc" class="text-xs text-slate-400 leading-relaxed mb-4">
+                Automated multi-AZ subnet subnetting with strict security defaults. Public IPs are explicitly disabled on launch to avoid accidental internet exposure.
+              </p>
+
+              <div class="space-y-3">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span class="text-[10px] font-mono text-slate-400 uppercase block mb-1">Security Highlights</span>
+                  <ul id="inspector-security-list" class="text-xs space-y-1 text-slate-300">
+                    <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-teal-400 shrink-0"></i> map_public_ip_on_launch = false</li>
+                    <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-teal-400 shrink-0"></i> Private subnets offset by 100</li>
+                    <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-teal-400 shrink-0"></i> DNS hostnames & support enabled</li>
+                  </ul>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span class="text-[10px] font-mono text-slate-400 uppercase block mb-1">Terraform Code Excerpt</span>
+                  <pre id="inspector-code-snippet" class="text-[11px] font-mono text-slate-300 overflow-x-auto whitespace-pre">resource "aws_subnet" "public" {
+  map_public_ip_on_launch = false
+  # ...
+}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-800 mt-4 flex items-center justify-between">
+            <button onclick="jumpToFileFromInspector()" class="text-xs text-teal-400 hover:text-teal-300 font-semibold flex items-center gap-1">
+              View full file in Code Explorer <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 2: Code & Repository Explorer -->
+  <section id="code-explorer" class="py-16 border-b border-slate-800/80 bg-[#090d16]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-indigo-400 mb-1">
+            <i data-lucide="folder-code" class="w-3.5 h-3.5"></i> Interactive Repository
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Browse Repository Files & Terraform Code</h2>
+          <p class="text-slate-400 text-xs sm:text-sm mt-1">Explore all module sources, environment wrappers, security policies, and CI/CD pipelines live in browser.</p>
+        </div>
+        
+        <!-- Search bar -->
+        <div class="relative w-full md:w-64">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input type="text" id="file-search-input" oninput="filterFiles(this.value)" placeholder="Search files or variables..." class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+        </div>
+      </div>
+
+      <!-- File Explorer IDE Window -->
+      <div class="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-12 min-h-[580px]">
+        
+        <!-- Sidebar Tree (4 Cols) -->
+        <div class="md:col-span-4 border-r border-slate-800 bg-[#0d1117] p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <span class="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="git-branch" class="w-3.5 h-3.5 text-teal-400"></i> main branch
+              </span>
+              <span class="text-[10px] font-mono text-slate-500">18 files</span>
+            </div>
+
+            <!-- File List -->
+            <div class="space-y-1 text-xs max-h-[460px] overflow-y-auto pr-1" id="file-tree-container">
+              <!-- Dynamically populated by JS -->
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800/80 text-[11px] text-slate-500 flex items-center justify-between">
+            <span>Clean layout</span>
+            <span class="text-teal-400 font-mono">Modular structure</span>
+          </div>
+        </div>
+
+        <!-- Code Viewer Pane (8 Cols) -->
+        <div class="md:col-span-8 bg-[#090d16] flex flex-col justify-between">
+          <div>
+            <!-- Code Tab Header -->
+            <div class="bg-slate-900/80 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="file-code" class="w-4 h-4 text-teal-400"></i>
+                <span id="active-file-path" class="text-xs font-mono font-semibold text-white">environments/dev/main.tf</span>
+                <span id="active-file-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">HCL</span>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <button onclick="copyCurrentCode()" class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono transition">
+                  <i data-lucide="copy" class="w-3 h-3"></i> <span id="copy-btn-text">Copy</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Code Content Area -->
+            <div class="p-4 overflow-x-auto max-h-[480px] overflow-y-auto font-mono text-xs leading-relaxed text-slate-200">
+              <pre id="code-display" class="whitespace-pre"><code></code></pre>
+            </div>
+          </div>
+
+          <!-- Bottom Status Bar -->
+          <div class="bg-slate-900/60 px-4 py-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+            <span id="active-file-meta">Lines: 21 &bull; Size: 490 B</span>
+            <span class="text-slate-400">UTF-8 &bull; Terraform >= 1.9</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 3: Multi-Environment Comparison Matrix -->
+  <section id="environments" class="py-16 border-b border-slate-800/80 bg-[#0c101c]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <div class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-blue-400 mb-1">
+          <i data-lucide="boxes" class="w-3.5 h-3.5"></i> Multi-Environment Strategy
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Isolated Environments, Shared Modules</h2>
+        <p class="text-slate-400 text-xs sm:text-sm mt-1">Environment code folders are ultra-thin wrappers calling identical, hardened modules with parameterized values.</p>
+      </div>
+
+      <!-- Comparison Matrix Table -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-950/70 text-slate-400 uppercase font-mono text-[10px]">
+                <th class="py-3 px-4">Dimension</th>
+                <th class="py-3 px-4 text-teal-400">Development (dev)</th>
+                <th class="py-3 px-4 text-blue-400">Staging (staging)</th>
+                <th class="py-3 px-4 text-purple-400">Production (prod)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 font-mono text-slate-300">
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-sans font-bold text-white flex items-center gap-1.5">
+                  <i data-lucide="network" class="w-3.5 h-3.5 text-slate-400"></i> VPC CIDR Block
+                </td>
+                <td class="py-3.5 px-4 text-teal-300">10.10.0.0/16</td>
+                <td class="py-3.5 px-4 text-blue-300">10.20.0.0/16</td>
+                <td class="py-3.5 px-4 text-purple-300">10.30.0.0/16</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-sans font-bold text-white flex items-center gap-1.5">
+                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i> Availability Zones
+                </td>
+                <td class="py-3.5 px-4">2 AZs (slice 0..2)</td>
+                <td class="py-3.5 px-4">2 AZs (slice 0..2)</td>
+                <td class="py-3.5 px-4 text-emerald-300 font-semibold">3 AZs (slice 0..3)</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-sans font-bold text-white flex items-center gap-1.5">
+                  <i data-lucide="cpu" class="w-3.5 h-3.5 text-slate-400"></i> EC2 Sizing
+                </td>
+                <td class="py-3.5 px-4 text-teal-300">t3.micro (Cost optimized)</td>
+                <td class="py-3.5 px-4 text-slate-400">Configurable (t3.micro)</td>
+                <td class="py-3.5 px-4 text-purple-300 font-semibold">Dedicated Multi-tier</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-sans font-bold text-white flex items-center gap-1.5">
+                  <i data-lucide="archive" class="w-3.5 h-3.5 text-slate-400"></i> S3 Storage Module
+                </td>
+                <td class="py-3.5 px-4 text-slate-500">Not enabled</td>
+                <td class="py-3.5 px-4 text-slate-500">Not enabled</td>
+                <td class="py-3.5 px-4 text-emerald-300 font-semibold">myapp-prod-artifacts (KMS)</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-sans font-bold text-white flex items-center gap-1.5">
+                  <i data-lucide="database" class="w-3.5 h-3.5 text-slate-400"></i> State Key Path
+                </td>
+                <td class="py-3.5 px-4 text-slate-400">dev/terraform.tfstate</td>
+                <td class="py-3.5 px-4 text-slate-400">staging/terraform.tfstate</td>
+                <td class="py-3.5 px-4 text-slate-400">prod/terraform.tfstate</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30 transition">
+                <td class="py-3.5 px-4 font-sans font-bold text-white flex items-center gap-1.5">
+                  <i data-lucide="git-merge" class="w-3.5 h-3.5 text-slate-400"></i> CI/CD Pipeline Gate
+                </td>
+                <td class="py-3.5 px-4">Automated plan on PR</td>
+                <td class="py-3.5 px-4">Release candidate validate</td>
+                <td class="py-3.5 px-4 text-amber-300 font-semibold">Protected GitHub Env Apply</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 4: Security & Compliance Shield -->
+  <section id="security" class="py-16 border-b border-slate-800/80 bg-[#090d16]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <div class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-1">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Security Architecture
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">The 4 Security Pillars</h2>
+        <p class="text-slate-400 text-xs sm:text-sm mt-1">Defensive architecture built into Terraform from the very first line of code.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        
+        <!-- Pillar 1 -->
+        <div class="bg-slate-900/80 border border-slate-800 hover:border-teal-500/50 rounded-2xl p-6 transition shadow-xl">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+              <i data-lucide="lock" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">1. Zero-Trust Remote State</h3>
+              <p class="text-xs text-slate-400">Encrypted at rest + Concurrency lock</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            Terraform state contains sensitive resource metadata and generated attributes. State is strictly locked in S3 with AWS KMS server-side encryption and DynamoDB distributed locking to prevent split-brain collisions.
+          </p>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] font-mono text-teal-300">
+            kms_key_id = "alias/terraform-state-key"<br>
+            dynamodb_table = "terraform-locks"
+          </div>
+        </div>
+
+        <!-- Pillar 2 -->
+        <div class="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 transition shadow-xl">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+              <i data-lucide="key-round" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">2. Secretless CI/CD via OIDC</h3>
+              <p class="text-xs text-slate-400">Zero long-lived AWS Access Keys</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            Eliminates static <code class="text-indigo-300">AWS_ACCESS_KEY_ID</code> credentials. GitHub Actions requests short-lived STS tokens directly using OpenID Connect (<code class="text-indigo-300">id-token: write</code>) assuming a pre-configured IAM role.
+          </p>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] font-mono text-indigo-300">
+            role-to-assume: arn:aws:iam::*:role/github-oidc-terraform
+          </div>
+        </div>
+
+        <!-- Pillar 3 -->
+        <div class="bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-6 transition shadow-xl">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+              <i data-lucide="cpu" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">3. Hardened Compute & IMDSv2</h3>
+              <p class="text-xs text-slate-400">Protection against SSRF & unencrypted EBS</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            EC2 instances strictly enforce Instance Metadata Service v2 (<code class="text-purple-300">http_tokens = "required"</code>) blocking common SSRF credential theft vulnerabilities. Root volumes use encrypted GP3 storage.
+          </p>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] font-mono text-purple-300">
+            metadata_options { http_tokens = "required" }
+          </div>
+        </div>
+
+        <!-- Pillar 4 -->
+        <div class="bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-6 transition shadow-xl">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <i data-lucide="check-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">4. Policy-as-Code Guardrails</h3>
+              <p class="text-xs text-slate-400">Checkov & tfsec enforcement in PRs</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            Automated scans execute in GitHub Actions prior to <code class="text-emerald-300">terraform plan</code>. Pull requests fail automatically if S3 encryption (<code class="text-emerald-300">CKV_AWS_19</code>) or versioning is violated.
+          </p>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] font-mono text-emerald-300">
+            check: [ CKV_AWS_19, CKV_AWS_21, CKV_AWS_144 ]
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Simulated Policy Scan Widget -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="scan" class="w-4 h-4 text-emerald-400"></i> Policy-as-Code CI/CD Audit Simulation
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Test how the automated scanners evaluate compliance in this codebase.</p>
+          </div>
+          <button onclick="runSimulatedScan()" id="btn-scan" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i> Run Scan
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs" id="scan-results-container">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-slate-300 font-bold">CKV_AWS_19</span>
+              <span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> PASSED</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-sans">Ensure all data stored in S3 bucket is securely encrypted with KMS.</p>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-slate-300 font-bold">CKV_AWS_21</span>
+              <span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> PASSED</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-sans">Ensure S3 bucket has versioning enabled to prevent accidental deletion.</p>
+          </div>
+
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-slate-300 font-bold">CKV_AWS_79</span>
+              <span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> PASSED</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-sans">Ensure Instance Metadata Service Version 2 (IMDSv2) is strictly required.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 5: CLI & Deployment Simulator -->
+  <section id="cli-simulator" class="py-16 border-b border-slate-800/80 bg-[#0c101c]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-amber-400 mb-1">
+            <i data-lucide="terminal" class="w-3.5 h-3.5"></i> Workflow Simulator
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Interactive Command Line Generator</h2>
+          <p class="text-slate-400 text-xs sm:text-sm mt-1">Select your environment and operation to view the precise command flags and execution context.</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          
+          <!-- Env Selector -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">1. Select Target Environment</label>
+            <div class="grid grid-cols-3 gap-2 text-xs font-mono">
+              <button onclick="setCliParam('env', 'dev')" id="cli-env-dev" class="py-2 px-3 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition">dev</button>
+              <button onclick="setCliParam('env', 'staging')" id="cli-env-staging" class="py-2 px-3 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">staging</button>
+              <button onclick="setCliParam('env', 'prod')" id="cli-env-prod" class="py-2 px-3 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">prod</button>
+            </div>
+          </div>
+
+          <!-- Operation Selector -->
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">2. Select Operation Step</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+              <button onclick="setCliParam('op', 'init')" id="cli-op-init" class="py-2 px-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition">terraform init</button>
+              <button onclick="setCliParam('op', 'plan')" id="cli-op-plan" class="py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">terraform plan</button>
+              <button onclick="setCliParam('op', 'apply')" id="cli-op-apply" class="py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">terraform apply</button>
+              <button onclick="setCliParam('op', 'bootstrap')" id="cli-op-bootstrap" class="py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">setup.sh</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Terminal Box -->
+        <div class="bg-black/90 rounded-xl border border-slate-800 p-4 font-mono text-xs relative">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-slate-500 text-[11px]">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+              <span class="ml-2 text-slate-400">bash &bull; bash terminal</span>
+            </div>
+            <button onclick="copyCliCommand()" class="text-teal-400 hover:text-teal-300 flex items-center gap-1 text-[11px]">
+              <i data-lucide="copy" class="w-3 h-3"></i> <span id="copy-cli-text">Copy Command</span>
+            </button>
+          </div>
+
+          <div class="text-slate-300 space-y-1">
+            <div class="text-slate-500" id="cli-cwd"># Working directory: environments/dev</div>
+            <div class="text-teal-400 font-bold text-sm" id="cli-command-output">cd environments/dev && terraform init -backend-config=backend.tfvars</div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-900 text-[11px] text-slate-400 leading-relaxed" id="cli-explanation">
+            <strong>Why this matters:</strong> Partial backend configuration separates sensitive bucket/key coordinates into <code class="text-amber-300">backend.tfvars</code>, preventing hardcoded state keys across environments.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 6: Vercel Deployment Guide -->
+  <section id="deploy-guide" class="py-16 bg-[#090d16]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/30 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/40 mb-4">
+            <i data-lucide="rocket" class="w-3.5 h-3.5"></i> Ready to Deploy to Vercel
+          </div>
+
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+            Deploy This Interactive Portal in 60 Seconds
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">
+            This repository includes all necessary <code class="text-teal-300 font-mono">vercel.json</code>, <code class="text-teal-300 font-mono">package.json</code>, and static assets. Deploying is fully automated and requires zero configuration.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            
+            <!-- Option A: GitHub + Vercel Web UI -->
+            <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5">
+              <div class="text-xs font-mono uppercase text-teal-400 font-bold mb-2">Option A: 1-Click via Vercel Dashboard</div>
+              <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside">
+                <li>Push your repository commits to GitHub</li>
+                <li>Go to <a href="https://vercel.com/new" target="_blank" class="text-teal-400 underline font-semibold">vercel.com/new</a></li>
+                <li>Select and import this repository</li>
+                <li>Leave default settings and click <strong>Deploy</strong></li>
+              </ol>
+            </div>
+
+            <!-- Option B: Vercel CLI -->
+            <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5">
+              <div class="text-xs font-mono uppercase text-indigo-400 font-bold mb-2">Option B: Instant CLI Deployment</div>
+              <p class="text-xs text-slate-400 mb-3">Deploy straight from your local terminal with one command:</p>
+              <div class="bg-black/80 p-2.5 rounded-lg border border-slate-800 font-mono text-xs text-indigo-300 flex items-center justify-between">
+                <span>npx vercel --prod</span>
+                <button onclick="navigator.clipboard.writeText('npx vercel --prod')" class="text-slate-400 hover:text-white">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <a href="https://vercel.com/new" target="_blank" class="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-sm font-bold flex items-center gap-2 shadow-lg shadow-teal-500/20 transition">
+              <i data-lucide="external-link" class="w-4 h-4"></i> Open Vercel Dashboard
+            </a>
+            <button onclick="navigator.clipboard.writeText('git push origin main && npx vercel --prod')" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-sm font-semibold flex items-center gap-2 transition">
+              <i data-lucide="copy" class="w-4 h-4"></i> Copy CLI Deploy Command
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-[#070a12] py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <i data-lucide="layers" class="w-4 h-4 text-teal-400"></i>
+        <span>Terraform Reusable & Secure Cloud Architecture</span>
+      </div>
+      <div>
+        <span>Engineered with security-first principles &bull; Hosted seamlessly on Vercel</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Embedded Project Data & Client Script -->
+  <script>
+    // Repository Files Data Store
+    const REPO_FILES = {
+      "environments/dev/main.tf": {
+        language: "hcl",
+        category: "environments",
+        size: "490 B",
+        lines: 21,
+        content: `terraform {
+  backend "s3" {} # values supplied via -backend-config=backend.tfvars
+}
+
+module "vpc" {
+  source = "../../modules/vpc"
+
+  name_prefix        = local.name_prefix
+  cidr_block         = "10.10.0.0/16"
+  availability_zones = slice(data.aws_availability_zones.available.names, 0, 2)
+}
+
+module "ec2" {
+  source = "../../modules/ec2"
+
+  name_prefix  = local.name_prefix
+  vpc_id       = module.vpc.vpc_id
+  subnet_ids   = module.vpc.private_subnet_ids
+  instance_type = "t3.micro"
+}`
+      },
+
+      "environments/dev/dev.tfvars": {
+        language: "hcl",
+        category: "environments",
+        size: "68 B",
+        lines: 4,
+        content: `aws_region  = "us-east-1"
+environment = "dev"
+project     = "myapp"`
+      },
+
+      "environments/dev/backend.tfvars": {
+        language: "hcl",
+        category: "environments",
+        size: "211 B",
+        lines: 7,
+        content: `bucket         = "my-iac-tfstate-prod"
+key            = "dev/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "terraform-locks"
+encrypt        = true
+kms_key_id     = "alias/terraform-state-key"`
+      },
+
+      "environments/staging/main.tf": {
+        language: "hcl",
+        category: "environments",
+        size: "294 B",
+        lines: 12,
+        content: `terraform {
+  backend "s3" {} # values supplied via -backend-config=backend.tfvars
+}
+
+module "vpc" {
+  source = "../../modules/vpc"
+
+  name_prefix        = local.name_prefix
+  cidr_block         = "10.20.0.0/16"
+  availability_zones = slice(data.aws_availability_zones.available.names, 0, 2)
+}`
+      },
+
+      "environments/staging/staging.tfvars": {
+        language: "hcl",
+        category: "environments",
+        size: "72 B",
+        lines: 4,
+        content: `aws_region  = "us-east-1"
+environment = "staging"
+project     = "myapp"`
+      },
+
+      "environments/staging/backend.tfvars": {
+        language: "hcl",
+        category: "environments",
+        size: "215 B",
+        lines: 7,
+        content: `bucket         = "my-iac-tfstate-prod"
+key            = "staging/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "terraform-locks"
+encrypt        = true
+kms_key_id     = "alias/terraform-state-key"`
+      },
+
+      "environments/prod/main.tf": {
+        language: "hcl",
+        category: "environments",
+        size: "422 B",
+        lines: 19,
+        content: `terraform {
+  backend "s3" {} # values supplied via -backend-config=backend.tfvars
+}
+
+module "vpc" {
+  source = "../../modules/vpc"
+
+  name_prefix        = local.name_prefix
+  cidr_block         = "10.30.0.0/16"
+  availability_zones = slice(data.aws_availability_zones.available.names, 0, 3)
+}
+
+module "s3_secure" {
+  source = "../../modules/s3"
+
+  name_prefix = local.name_prefix
+  bucket_name = "myapp-prod-artifacts"
+}`
+      },
+
+      "environments/prod/prod.tfvars": {
+        language: "hcl",
+        category: "environments",
+        size: "69 B",
+        lines: 4,
+        content: `aws_region  = "us-east-1"
+environment = "prod"
+project     = "myapp"`
+      },
+
+      "environments/prod/backend.tfvars": {
+        language: "hcl",
+        category: "environments",
+        size: "212 B",
+        lines: 7,
+        content: `bucket         = "my-iac-tfstate-prod"
+key            = "prod/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "terraform-locks"
+encrypt        = true
+kms_key_id     = "alias/terraform-state-key"`
+      },
+
+      "modules/vpc/main.tf": {
+        language: "hcl",
+        category: "modules",
+        size: "901 B",
+        lines: 27,
+        content: `resource "aws_vpc" "this" {
+  cidr_block           = var.cidr_block
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = { Name = "\${var.name_prefix}-vpc" }
+}
+
+resource "aws_subnet" "public" {
+  count                   = length(var.availability_zones)
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = cidrsubnet(var.cidr_block, 8, count.index)
+  availability_zone       = var.availability_zones[count.index]
+  map_public_ip_on_launch = false # security: no auto public IPs
+
+  tags = { Name = "\${var.name_prefix}-public-\${count.index}" }
+}
+
+resource "aws_subnet" "private" {
+  count             = length(var.availability_zones)
+  vpc_id            = aws_vpc.this.id
+  cidr_block        = cidrsubnet(var.cidr_block, 8, count.index + 100)
+  availability_zone = var.availability_zones[count.index]
+
+  tags = { Name = "\${var.name_prefix}-private-\${count.index}" }
+}`
+      },
+
+      "modules/ec2/main.tf": {
+        language: "hcl",
+        category: "modules",
+        size: "617 B",
+        lines: 27,
+        content: `data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+}
+
+resource "aws_instance" "this" {
+  ami                    = data.aws_ami.amazon_linux.id
+  instance_type          = var.instance_type
+  subnet_id              = var.subnet_ids[0]
+  monitoring             = true
+  ebs_optimized          = true
+  metadata_options {
+    http_tokens = "required" # IMDSv2 enforced
+  }
+
+  root_block_device {
+    encrypted   = true # EBS encryption at rest
+    volume_type = "gp3"
+  }
+
+  tags = { Name = "\${var.name_prefix}-app" }
+}`
+      },
+
+      "modules/s3/main.tf": {
+        language: "hcl",
+        category: "modules",
+        size: "825 B",
+        lines: 33,
+        content: `resource "aws_s3_bucket" "this" {
+  bucket = var.bucket_name
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket                  = aws_s3_bucket.this.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
+    }
+    bucket_key_enabled = true
+  }
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+  versioning_configuration { status = "Enabled" }
+}
+
+resource "aws_s3_bucket_logging" "this" {
+  bucket        = aws_s3_bucket.this.id
+  target_bucket = aws_s3_bucket.this.id
+  target_prefix = "access-logs/"
+}`
+      },
+
+      "modules/iam/main.tf": {
+        language: "hcl",
+        category: "modules",
+        size: "679 B",
+        lines: 26,
+        content: `# Least-privilege instance role — no wildcard actions/resources
+resource "aws_iam_role" "app" {
+  name = "\${var.name_prefix}-app-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "app_minimal" {
+  name = "\${var.name_prefix}-app-policy"
+  role = aws_iam_role.app.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["s3:GetObject", "s3:ListBucket"]
+      Resource = ["arn:aws:s3:::\${var.name_prefix}-*"]
+    }]
+  })
+}`
+      },
+
+      "shared/backend.tf": {
+        language: "hcl",
+        category: "shared",
+        size: "328 B",
+        lines: 12,
+        content: `# Remote state: S3 (KMS-encrypted) + DynamoDB locking
+terraform {
+  backend "s3" {
+    bucket         = "my-iac-tfstate-prod"
+    key            = "REPLACE/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
+    kms_key_id     = "alias/terraform-state-key"
+  }
+}`
+      },
+
+      "shared/providers.tf": {
+        language: "hcl",
+        category: "shared",
+        size: "255 B",
+        lines: 19,
+        content: `terraform {
+  required_version = ">= 1.9.0, < 2.0.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+
+  default_tags {
+    tags = local.common_tags
+  }
+}`
+      },
+
+      "policies/checkov.yaml": {
+        language: "yaml",
+        category: "policies",
+        size: "234 B",
+        lines: 10,
+        content: `# Checkov policy-as-code config — fail PR on any critical/high
+framework:
+  - terraform
+soft_fail: false
+check:
+  - CKV_AWS_19   # S3 encryption
+  - CKV_AWS_21   # S3 versioning
+  - CKV_AWS_144  # Cross-region backup
+skip_check: []`
+      },
+
+      ".github/workflows/terraform-ci.yml": {
+        language: "yaml",
+        category: "ci-cd",
+        size: "2.1 KB",
+        lines: 73,
+        content: `name: Terraform CI/CD
+
+on:
+  pull_request:
+    paths: ["**.tf", "**.tfvars"]
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write   # OIDC — no long-lived AWS keys
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: 1.9.x }
+      - name: fmt check
+        run: terraform fmt -check -recursive
+      - name: init & validate (dev)
+        working-directory: environments/dev
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          config_file: policies/checkov.yaml
+      - uses: aquasecurity/tfsec-action@v1.0.3
+        with: { working_directory: . }
+
+  plan:
+    needs: [validate, security-scan]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-oidc-terraform
+          aws-region: us-east-1
+      - name: plan
+        working-directory: environments/dev
+        run: |
+          terraform init -backend-config=backend.tfvars
+          terraform plan -var-file=dev.tfvars -no-color
+
+  apply:
+    needs: [validate, security-scan]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-oidc-terraform
+          aws-region: us-east-1
+      - name: apply prod
+        working-directory: environments/prod
+        run: |
+          terraform init -backend-config=backend.tfvars
+          terraform apply -var-file=prod.tfvars -auto-approve`
+      },
+
+      "scripts/setup.sh": {
+        language: "bash",
+        category: "scripts",
+        size: "1.0 KB",
+        lines: 22,
+        content: `#!/usr/bin/env bash
+set -euo pipefail
+
+# One-time bootstrap: S3 state bucket + DynamoDB lock table (run manually, not in CI)
+REGION="us-east-1"
+BUCKET="my-iac-tfstate-prod"
+TABLE="terraform-locks"
+
+aws s3api create-bucket --bucket "$BUCKET" --region "$REGION"
+aws s3api put-bucket-versioning --bucket "$BUCKET" --versioning-configuration Status=Enabled
+aws s3api put-bucket-encryption --bucket "$BUCKET" \\
+  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"aws:kms","KMSMasterKeyID":"alias/terraform-state-key"},"BucketKeyEnabled":true}]}'
+aws s3api put-public-access-block --bucket "$BUCKET" \\
+  --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+
+aws dynamodb create-table --table-name "$TABLE" \\
+  --attribute-definitions AttributeName=LockID,AttributeType=S \\
+  --key-schema AttributeName=LockID,KeyType=HASH \\
+  --billing-mode PAY_PER_REQUEST --region "$REGION"
+
+echo "Backend infrastructure ready."`
+      }
+    };
+
+    let activeFilePath = "environments/dev/main.tf";
+
+    // Initialize UI
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      renderFileTree();
+      loadFileContent(activeFilePath);
+      updateCliSimulator();
+    });
+
+    // File Tree Rendering
+    function renderFileTree(filter = "") {
+      const container = document.getElementById("file-tree-container");
+      container.innerHTML = "";
+
+      const fileKeys = Object.keys(REPO_FILES).filter(path => 
+        path.toLowerCase().includes(filter.toLowerCase())
+      );
+
+      fileKeys.forEach(filePath => {
+        const file = REPO_FILES[filePath];
+        const isActive = filePath === activeFilePath;
+        
+        const button = document.createElement("button");
+        button.className = `w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between transition group \${
+          isActive ? "bg-teal-500/15 text-teal-300 font-semibold" : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+        }`;
+        
+        let iconName = "file";
+        if (filePath.endsWith(".tf")) iconName = "file-code";
+        if (filePath.endsWith(".tfvars")) iconName = "sliders";
+        if (filePath.endsWith(".yml") || filePath.endsWith(".yaml")) iconName = "shield";
+        if (filePath.endsWith(".sh")) iconName = "terminal";
+
+        button.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <i data-lucide="\${iconName}" class="w-3.5 h-3.5 shrink-0 \${isActive ? "text-teal-400" : "text-slate-500 group-hover:text-slate-300"}"></i>
+            <span class="truncate font-mono text-xs">\${filePath}</span>
+          </div>
+          <span class="text-[9px] font-mono opacity-60 text-slate-500">\${file.size}</span>
+        `;
+
+        button.onclick = () => {
+          activeFilePath = filePath;
+          renderFileTree(filter);
+          loadFileContent(filePath);
+        };
+
+        container.appendChild(button);
+      });
+
+      lucide.createIcons();
+    }
+
+    function filterFiles(term) {
+      renderFileTree(term);
+    }
+
+    function loadFileContent(filePath) {
+      const file = REPO_FILES[filePath];
+      if (!file) return;
+
+      document.getElementById("active-file-path").textContent = filePath;
+      document.getElementById("active-file-badge").textContent = file.language.toUpperCase();
+      document.getElementById("active-file-meta").textContent = `Lines: \${file.lines} • Size: \${file.size}`;
+      
+      const codeBlock = document.getElementById("code-display");
+      codeBlock.textContent = file.content;
+    }
+
+    function copyCurrentCode() {
+      const file = REPO_FILES[activeFilePath];
+      if (file) {
+        navigator.clipboard.writeText(file.content);
+        const btnText = document.getElementById("copy-btn-text");
+        btnText.textContent = "Copied!";
+        setTimeout(() => btnText.textContent = "Copy", 1800);
+      }
+    }
+
+    // Architecture Environment Toggle
+    let currentArchEnv = 'dev';
+    function setArchEnv(env) {
+      currentArchEnv = env;
+      
+      // Update toggle buttons
+      ['dev', 'staging', 'prod'].forEach(e => {
+        const btn = document.getElementById(`btn-env-\${e}`);
+        if (e === env) {
+          btn.className = "px-2.5 py-1 rounded bg-teal-500 text-slate-950 font-bold transition";
+        } else {
+          btn.className = "px-2.5 py-1 rounded text-slate-400 hover:text-white transition";
+        }
+      });
+
+      const cidrMap = { dev: "10.10.0.0/16", staging: "10.20.0.0/16", prod: "10.30.0.0/16" };
+      const nameMap = { dev: "myapp-dev-vpc", staging: "myapp-staging-vpc", prod: "myapp-prod-vpc" };
+      const azMap = { dev: "2 AZs Active", staging: "2 AZs Active", prod: "3 AZs (High Availability)" };
+      const ec2Map = { dev: "t3.micro", staging: "t3.micro (test)", prod: "t3.large (HA)" };
+
+      document.getElementById("arch-vpc-cidr").textContent = `VPC CIDR: \${cidrMap[env]}`;
+      document.getElementById("arch-vpc-name").textContent = nameMap[env];
+      document.getElementById("arch-az-count").textContent = azMap[env];
+      document.getElementById("arch-ec2-type").textContent = ec2Map[env];
+
+      // Update subnet representations
+      if (env === 'dev') {
+        document.getElementById("subnet-pub-0").textContent = "10.10.0.0/24";
+        document.getElementById("subnet-pub-1").textContent = "10.10.1.0/24";
+        document.getElementById("subnet-priv-0").textContent = "10.10.100.0/24";
+        document.getElementById("subnet-priv-1").textContent = "10.10.101.0/24";
+      } else if (env === 'staging') {
+        document.getElementById("subnet-pub-0").textContent = "10.20.0.0/24";
+        document.getElementById("subnet-pub-1").textContent = "10.20.1.0/24";
+        document.getElementById("subnet-priv-0").textContent = "10.20.100.0/24";
+        document.getElementById("subnet-priv-1").textContent = "10.20.101.0/24";
+      } else {
+        document.getElementById("subnet-pub-0").textContent = "10.30.0.0/24";
+        document.getElementById("subnet-pub-1").textContent = "10.30.1.0/24";
+        document.getElementById("subnet-priv-0").textContent = "10.30.100.0/24";
+        document.getElementById("subnet-priv-1").textContent = "10.30.101.0/24";
+      }
+    }
+
+    // Component Inspector Selection
+    const COMPONENT_DETAILS = {
+      vpc: {
+        badge: "modules/vpc",
+        title: "VPC Infrastructure Module",
+        desc: "Automated multi-AZ subnet subnetting with strict security defaults. Public IPs are explicitly disabled on launch to avoid accidental internet exposure.",
+        security: [
+          "map_public_ip_on_launch = false (No direct public IPs)",
+          "Private subnets offset by +100 CIDR formula",
+          "DNS support and hostnames explicitly enabled"
+        ],
+        snippet: `resource "aws_subnet" "public" {
+  count                   = length(var.availability_zones)
+  map_public_ip_on_launch = false # strict security
+  # ...
+}`,
+        targetFile: "modules/vpc/main.tf"
+      },
+
+      ec2: {
+        badge: "modules/ec2",
+        title: "Hardened EC2 Compute Module",
+        desc: "Runs Amazon Linux 2023 with enforced IMDSv2 metadata tokens and KMS-encrypted GP3 EBS root storage.",
+        security: [
+          "http_tokens = 'required' (IMDSv2 prevents SSRF exploitation)",
+          "Root block device encrypted with KMS",
+          "EBS-optimized and detailed monitoring enabled"
+        ],
+        snippet: `metadata_options {
+  http_tokens = "required" # IMDSv2 enforced
+}
+root_block_device {
+  encrypted = true # EBS at-rest encryption
+}`,
+        targetFile: "modules/ec2/main.tf"
+      },
+
+      backend: {
+        badge: "shared/backend.tf",
+        title: "Remote Encrypted S3 Backend",
+        desc: "All state files are persisted in AWS S3 with server-side encryption via AWS KMS and bucket-level public access blocking.",
+        security: [
+          "SSE-KMS encryption with customer managed alias",
+          "Object versioning prevents state tampering",
+          "Zero local state files allowed in repository"
+        ],
+        snippet: `terraform {
+  backend "s3" {
+    bucket         = "my-iac-tfstate-prod"
+    encrypt        = true
+    kms_key_id     = "alias/terraform-state-key"
+  }
+}`,
+        targetFile: "shared/backend.tf"
+      },
+
+      dynamodb: {
+        badge: "scripts/setup.sh",
+        title: "DynamoDB State Lock Table",
+        desc: "Pay-per-request table providing distributed locking during terraform apply/plan to eliminate concurrent race conditions.",
+        security: [
+          "LockID string partition key",
+          "PAY_PER_REQUEST billing mode for zero idle cost",
+          "Native Terraform locking integration"
+        ],
+        snippet: `aws dynamodb create-table \\
+  --table-name "terraform-locks" \\
+  --attribute-definitions AttributeName=LockID,AttributeType=S \\
+  --key-schema AttributeName=LockID,KeyType=HASH`,
+        targetFile: "scripts/setup.sh"
+      },
+
+      iam: {
+        badge: "modules/iam",
+        title: "Least Privilege IAM Role",
+        desc: "Scoped strictly to specific resource ARNs without wildcard permissions. CI/CD runs via GitHub Actions OIDC without static keys.",
+        security: [
+          "Zero wildcard action/resource combinations",
+          "Scoped strictly to arn:aws:s3:::\${var.name_prefix}-*",
+          "GitHub Actions authenticates via AWS OIDC AssumeRole"
+        ],
+        snippet: `resource "aws_iam_role_policy" "app_minimal" {
+  policy = jsonencode({
+    Statement = [{
+      Action   = ["s3:GetObject", "s3:ListBucket"]
+      Resource = ["arn:aws:s3:::\${var.name_prefix}-*"]
+    }]
+  })
+}`,
+        targetFile: "modules/iam/main.tf"
+      }
+    };
+
+    let activeInspectorTarget = "modules/vpc/main.tf";
+
+    function selectComponent(compKey) {
+      const data = COMPONENT_DETAILS[compKey];
+      if (!data) return;
+
+      activeInspectorTarget = data.targetFile;
+      document.getElementById("inspector-badge").textContent = data.badge;
+      document.getElementById("inspector-title").textContent = data.title;
+      document.getElementById("inspector-desc").textContent = data.desc;
+      document.getElementById("inspector-code-snippet").textContent = data.snippet;
+
+      const listEl = document.getElementById("inspector-security-list");
+      listEl.innerHTML = "";
+      data.security.forEach(item => {
+        const li = document.createElement("li");
+        li.className = "flex items-center gap-1.5";
+        li.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-teal-400 shrink-0"></i> \${item}`;
+        listEl.appendChild(li);
+      });
+
+      lucide.createIcons();
+    }
+
+    function jumpToFileFromInspector() {
+      activeFilePath = activeInspectorTarget;
+      renderFileTree();
+      loadFileContent(activeFilePath);
+      document.getElementById("code-explorer").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // CLI Simulator Logic
+    let cliState = {
+      env: 'dev',
+      op: 'init'
+    };
+
+    function setCliParam(param, val) {
+      cliState[param] = val;
+
+      if (param === 'env') {
+        ['dev', 'staging', 'prod'].forEach(e => {
+          const btn = document.getElementById(`cli-env-\${e}`);
+          if (e === val) {
+            btn.className = "py-2 px-3 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition";
+          } else {
+            btn.className = "py-2 px-3 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition";
+          }
+        });
+      }
+
+      if (param === 'op') {
+        ['init', 'plan', 'apply', 'bootstrap'].forEach(o => {
+          const btn = document.getElementById(`cli-op-\${o}`);
+          if (o === val) {
+            btn.className = "py-2 px-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition";
+          } else {
+            btn.className = "py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition";
+          }
+        });
+      }
+
+      updateCliSimulator();
+    }
+
+    function updateCliSimulator() {
+      const cwdEl = document.getElementById("cli-cwd");
+      const cmdEl = document.getElementById("cli-command-output");
+      const expEl = document.getElementById("cli-explanation");
+
+      const env = cliState.env;
+      const op = cliState.op;
+
+      if (op === 'bootstrap') {
+        cwdEl.textContent = "# Working directory: repo root (scripts/)";
+        cmdEl.textContent = "./scripts/setup.sh";
+        expEl.innerHTML = `<strong>Bootstrap Explanation:</strong> Runs one-time AWS CLI calls to provision the S3 remote state bucket with KMS encryption and DynamoDB distributed locking table before any Terraform runs.`;
+      } else if (op === 'init') {
+        cwdEl.textContent = `# Working directory: environments/\${env}`;
+        cmdEl.textContent = `cd environments/\${env} && terraform init -backend-config=backend.tfvars`;
+        expEl.innerHTML = `<strong>Why -backend-config matters:</strong> Injects the isolated state key (<code class="text-amber-300">\${env}/terraform.tfstate</code>) dynamically into the partial S3 backend without modifying code.`;
+      } else if (op === 'plan') {
+        cwdEl.textContent = `# Working directory: environments/\${env}`;
+        cmdEl.textContent = `cd environments/\${env} && terraform plan -var-file="\${env}.tfvars"`;
+        expEl.innerHTML = `<strong>Why -var-file matters:</strong> Loads environment-specific parameters such as VPC CIDRs and AWS region into the reusable modules, producing a deterministic, drift-free execution plan.`;
+      } else if (op === 'apply') {
+        cwdEl.textContent = `# Working directory: environments/\${env}`;
+        cmdEl.textContent = `cd environments/\${env} && terraform apply -var-file="\${env}.tfvars" -auto-approve`;
+        expEl.innerHTML = `<strong>Safety notice:</strong> Executes the plan against AWS with state locked in DynamoDB. In production environments, this step is gated behind GitHub Actions approval environments.`;
+      }
+    }
+
+    function copyCliCommand() {
+      const cmdText = document.getElementById("cli-command-output").textContent;
+      navigator.clipboard.writeText(cmdText);
+      const copyText = document.getElementById("copy-cli-text");
+      copyText.textContent = "Copied!";
+      setTimeout(() => copyText.textContent = "Copy Command", 1800);
+    }
+
+    function runSimulatedScan() {
+      const btn = document.getElementById("btn-scan");
+      btn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Scanning...`;
+      
+      setTimeout(() => {
+        btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> All Passed!`;
+        setTimeout(() => {
+          btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i> Run Scan`;
+          lucide.createIcons();
+        }, 2000);
+      }, 700);
+    }
+  </script>
+</body>
+</html>
+

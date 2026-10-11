@@ -1,6 +1,28 @@
 # Terraform — Reusable & Secure Infrastructure-as-Code Framework
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Preview-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://reusable-terraform-structure-exampl.vercel.app)
+[![Terraform >= 1.9](https://img.shields.io/badge/terraform-%3E%3D1.9-844FBA.svg)](https://www.terraform.io/)
+[![AWS Provider ~> 5.0](https://img.shields.io/badge/aws%20provider-~%3E5.0-FF9900.svg)](https://registry.terraform.io/providers/hashicorp/aws/latest)
+[![Security Scans](https://img.shields.io/badge/scans-checkov%20%7C%20tfsec-22c55e.svg)](policies/)
+
 A production-grade Terraform project layout focused on **reusability** (modules + environments) and **security** (least-privilege IAM, remote encrypted state, secrets handling, policy-as-code, CI/CD scanning).
+
+---
+
+## 🌐 Live Interactive Architecture & Code Explorer (Vercel)
+
+👉 **Live Portal URL**: **[https://reusable-terraform-structure-exampl.vercel.app](https://reusable-terraform-structure-exampl.vercel.app)**
+
+This repository includes a pre-configured interactive web portal (`index.html`, `vercel.json`, and `package.json`) allowing viewers to explore the cloud architecture, review module code, compare environments, and simulate CLI commands in real time.
+
+### Deploy to Vercel in 1 Click:
+1. Import this repository in [Vercel Dashboard](https://vercel.com/new).
+2. Click **Deploy** (zero configuration required).
+
+Or deploy instantly via CLI:
+```bash
+npx vercel --prod
+```
 
 ## Design principles
 

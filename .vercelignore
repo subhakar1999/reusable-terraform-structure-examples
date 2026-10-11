@@ -1,0 +1,10 @@
+.git
+.github
+.pre-commit-config.yaml
+.terraform
+*.tfstate
+*.tfstate.*
+crash.log
+node_modules
+.env
+

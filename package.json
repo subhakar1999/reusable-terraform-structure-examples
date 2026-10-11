@@ -1,0 +1,20 @@
+{
+  "name": "terraform-reusable-secure-viewer",
+  "version": "1.0.0",
+  "description": "Interactive Web Showcase & Architecture Visualizer for Reusable & Secure Terraform Infrastructure",
+  "private": true,
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "terraform",
+    "infrastructure-as-code",
+    "aws",
+    "security",
+    "devops",
+    "architecture-visualizer",
+    "vercel"
+  ],
+  "license": "MIT"
+}

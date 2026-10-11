@@ -16,3 +16,6 @@ crash.log
 # OS / editor
 .DS_Store
 *.swp
+.vercel/
+
+.vercel
