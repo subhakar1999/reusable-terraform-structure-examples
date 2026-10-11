@@ -754,76 +754,175 @@
     </div>
   </section>
 
-  <!-- Section 5: CLI & Deployment Simulator -->
+    <!-- Section 5: CLI & Deployment Simulator -->
   <section id="cli-simulator" class="py-16 border-b border-slate-800/80 bg-[#0c101c]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-          <div class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-amber-400 mb-1">
-            <i data-lucide="terminal" class="w-3.5 h-3.5"></i> Workflow Simulator
+          <div class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-400 mb-1">
+            <i data-lucide="terminal" class="w-3.5 h-3.5"></i> Interactive CLI Simulator
           </div>
-          <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Interactive Command Line Generator</h2>
-          <p class="text-slate-400 text-xs sm:text-sm mt-1">Select your environment and operation to view the precise command flags and execution context.</p>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Interactive Command Line & Terminal Generator</h2>
+          <p class="text-slate-400 text-xs sm:text-sm mt-1">
+            Choose environment, commands, and toggle runtime flags. Click <strong class="text-amber-400">Run Simulation</strong> to watch real Terraform stdout stream in the terminal.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="runCliSimulation()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-amber-500/20">
+            <i data-lucide="play" class="w-4 h-4 fill-slate-950"></i> Run in Virtual Terminal
+          </button>
         </div>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+        
+        <!-- Controls Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
-          <!-- Env Selector -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">1. Select Target Environment</label>
-            <div class="grid grid-cols-3 gap-2 text-xs font-mono">
-              <button onclick="setCliParam('env', 'dev')" id="cli-env-dev" class="py-2 px-3 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition">dev</button>
-              <button onclick="setCliParam('env', 'staging')" id="cli-env-staging" class="py-2 px-3 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">staging</button>
-              <button onclick="setCliParam('env', 'prod')" id="cli-env-prod" class="py-2 px-3 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">prod</button>
+          <!-- Environment (3 cols) -->
+          <div class="lg:col-span-3 bg-slate-950/70 p-4 rounded-xl border border-slate-800/90">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <i data-lucide="boxes" class="w-3.5 h-3.5 text-teal-400"></i> 1. Environment
+            </label>
+            <div class="grid grid-cols-3 gap-1.5 text-xs font-mono">
+              <button onclick="setCliParam('env', 'dev')" id="cli-env-dev" class="py-2 px-2 text-center rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition">dev</button>
+              <button onclick="setCliParam('env', 'staging')" id="cli-env-staging" class="py-2 px-2 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">staging</button>
+              <button onclick="setCliParam('env', 'prod')" id="cli-env-prod" class="py-2 px-2 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">prod</button>
             </div>
+            <div class="mt-2 text-[10px] text-slate-400 font-mono" id="cli-env-badge">Active: dev (10.10.0.0/16)</div>
           </div>
 
-          <!-- Operation Selector -->
-          <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">2. Select Operation Step</label>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
-              <button onclick="setCliParam('op', 'init')" id="cli-op-init" class="py-2 px-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition">terraform init</button>
-              <button onclick="setCliParam('op', 'plan')" id="cli-op-plan" class="py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">terraform plan</button>
-              <button onclick="setCliParam('op', 'apply')" id="cli-op-apply" class="py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">terraform apply</button>
-              <button onclick="setCliParam('op', 'bootstrap')" id="cli-op-bootstrap" class="py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">setup.sh</button>
+          <!-- Operation (6 cols) -->
+          <div class="lg:col-span-6 bg-slate-950/70 p-4 rounded-xl border border-slate-800/90">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <i data-lucide="play-circle" class="w-3.5 h-3.5 text-indigo-400"></i> 2. Terraform Operation
+            </label>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-xs font-mono">
+              <button onclick="setCliParam('op', 'bootstrap')" id="cli-op-bootstrap" class="py-2 px-1 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">setup</button>
+              <button onclick="setCliParam('op', 'fmt')" id="cli-op-fmt" class="py-2 px-1 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">fmt</button>
+              <button onclick="setCliParam('op', 'init')" id="cli-op-init" class="py-2 px-1 text-center rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition">init</button>
+              <button onclick="setCliParam('op', 'validate')" id="cli-op-validate" class="py-2 px-1 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">validate</button>
+              <button onclick="setCliParam('op', 'plan')" id="cli-op-plan" class="py-2 px-1 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">plan</button>
+              <button onclick="setCliParam('op', 'apply')" id="cli-op-apply" class="py-2 px-1 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">apply</button>
             </div>
+            <div class="mt-2 text-[10px] text-slate-400 font-mono" id="cli-op-desc">Initialize backend & download AWS provider</div>
+          </div>
+
+          <!-- Quick Actions (3 cols) -->
+          <div class="lg:col-span-3 bg-slate-950/70 p-4 rounded-xl border border-slate-800/90 flex flex-col justify-between">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-400"></i> 3. Quick Options
+            </label>
+            <div class="flex items-center gap-2">
+              <button onclick="runCliSimulation()" class="w-full py-1.5 px-3 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-mono text-xs font-bold border border-amber-500/40 transition flex items-center justify-center gap-1.5">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i> Simulate
+              </button>
+              <button onclick="copyCliCommand()" class="w-full py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono text-xs transition border border-slate-700 flex items-center justify-center gap-1.5">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span id="copy-cli-text">Copy</span>
+              </button>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-2 font-mono">Simulates real AWS stdout logs</span>
           </div>
 
         </div>
 
-        <!-- Terminal Box -->
-        <div class="bg-black/90 rounded-xl border border-slate-800 p-4 font-mono text-xs relative">
-          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-slate-500 text-[11px]">
-            <div class="flex items-center gap-1.5">
+        <!-- Interactive Flags Toggles -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><i data-lucide="toggle-left" class="w-3.5 h-3.5 text-teal-400"></i> Interactive Command Line Flags</span>
+            <span class="text-[10px] text-slate-500 lowercase">toggle flags to modify command instantly</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+            <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition">
+              <input type="checkbox" id="flag-backend" checked onchange="toggleFlag('backend')" class="rounded border-slate-700 text-amber-500 focus:ring-0">
+              <span class="text-slate-300">-backend-config</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition">
+              <input type="checkbox" id="flag-varfile" checked onchange="toggleFlag('varfile')" class="rounded border-slate-700 text-amber-500 focus:ring-0">
+              <span class="text-slate-300">-var-file</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition">
+              <input type="checkbox" id="flag-autoapprove" onchange="toggleFlag('autoapprove')" class="rounded border-slate-700 text-amber-500 focus:ring-0">
+              <span class="text-slate-300">-auto-approve</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition">
+              <input type="checkbox" id="flag-targetvpc" onchange="toggleFlag('targetvpc')" class="rounded border-slate-700 text-amber-500 focus:ring-0">
+              <span class="text-slate-300">-target=module.vpc</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Terminal Window with Dual Tabs -->
+        <div class="bg-black/95 rounded-xl border border-slate-800 overflow-hidden shadow-2xl font-mono text-xs">
+          
+          <!-- Terminal Title Bar -->
+          <div class="bg-slate-900/90 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
               <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
               <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
-              <span class="ml-2 text-slate-400">bash terminal</span>
+              <span class="ml-2 text-slate-400 text-[11px]">bash &bull; terraform session</span>
             </div>
-            <button onclick="copyCliCommand()" class="text-teal-400 hover:text-teal-300 flex items-center gap-1 text-[11px]">
-              <i data-lucide="copy" class="w-3 h-3"></i> <span id="copy-cli-text">Copy Command</span>
+
+            <!-- Terminal Tabs -->
+            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-[11px]">
+              <button onclick="setTerminalTab('output')" id="tab-output-btn" class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold transition">
+                Terminal Output
+              </button>
+              <button onclick="setTerminalTab('command')" id="tab-command-btn" class="px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition">
+                Command Anatomy
+              </button>
+            </div>
+          </div>
+
+          <!-- Command Prompt Header -->
+          <div class="p-3 bg-slate-950/80 border-b border-slate-900 flex items-center justify-between gap-2 overflow-x-auto text-[11px]">
+            <div class="flex items-center gap-2 whitespace-nowrap">
+              <span class="text-teal-400 font-bold">$</span>
+              <span class="text-slate-400" id="cli-cwd">cd environments/dev &&</span>
+              <span class="text-amber-300 font-bold text-xs" id="cli-command-output">terraform init -backend-config=backend.tfvars</span>
+            </div>
+            <button onclick="copyCliCommand()" class="text-slate-500 hover:text-teal-300 shrink-0 text-[10px]">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
             </button>
           </div>
 
-          <div class="text-slate-300 space-y-1">
-            <div class="text-slate-500" id="cli-cwd"># Working directory: environments/dev</div>
-            <div class="text-teal-400 font-bold text-sm" id="cli-command-output">cd environments/dev && terraform init -backend-config=backend.tfvars</div>
+          <!-- Tab Content: Simulated Live Terminal Logs -->
+          <div id="terminal-output-pane" class="p-4 overflow-y-auto max-h-[320px] min-h-[220px] text-[11px] leading-relaxed text-slate-300 space-y-1">
+            <div class="text-slate-500 italic"># Click "Run in Virtual Terminal" to execute simulated workflow...</div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-900 text-[11px] text-slate-400 leading-relaxed" id="cli-explanation">
-            <strong>Why this matters:</strong> Partial backend configuration separates sensitive bucket/key coordinates into <code class="text-amber-300">backend.tfvars</code>, preventing hardcoded state keys across environments.
+          <!-- Tab Content: Command Anatomy & Explanation -->
+          <div id="terminal-command-pane" class="p-5 hidden text-xs text-slate-300 space-y-3">
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+              <span class="text-amber-400 font-bold text-xs block mb-1">Architecture Rationale</span>
+              <div id="cli-explanation" class="text-slate-300 text-xs leading-relaxed">
+                Loading explanation...
+              </div>
+            </div>
           </div>
+
+          <!-- Terminal Status Bar -->
+          <div class="bg-slate-950 px-4 py-2 border-t border-slate-900 flex items-center justify-between text-[10px] text-slate-500">
+            <div class="flex items-center gap-2">
+              <span id="term-status-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span id="term-status-text" class="text-slate-400">Ready</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span id="term-env-text">Target: environments/dev</span>
+              <span>Terraform v1.9.5</span>
+            </div>
+          </div>
+
         </div>
 
       </div>
 
     </div>
   </section>
-
-  <!-- Section 6: Vercel Deployment Guide -->
+<!-- Section 6: Vercel Deployment Guide -->
   <section id="deploy-guide" class="py-16 bg-[#090d16]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
@@ -1620,7 +1719,111 @@
       document.getElementById("code-explorer").scrollIntoView({ behavior: 'smooth' });
     }
 
-    let cliState = { env: 'dev', op: 'init' };
+        // CLI Simulator State & Interactive Execution
+    let cliState = {
+      env: 'dev',
+      op: 'init',
+      flags: {
+        backend: true,
+        varfile: true,
+        autoapprove: false,
+        targetvpc: false
+      },
+      currentTab: 'output'
+    };
+
+    const CLI_LOGS = {
+      bootstrap: function() {
+        return [
+          '<span class="text-teal-400">==> Running one-time infrastructure bootstrap (./scripts/setup.sh)</span>',
+          '<span class="text-slate-400">[1/5] Checking AWS STS credentials for us-east-1...</span>',
+          '<span class="text-emerald-400">[2/5] Creating S3 state bucket: my-iac-tfstate-prod...</span>',
+          '<span class="text-slate-300">      + Bucket created successfully</span>',
+          '<span class="text-emerald-400">[3/5] Enabling S3 bucket versioning (Status=Enabled)...</span>',
+          '<span class="text-emerald-400">[4/5] Applying AWS KMS Server-Side Encryption (alias/terraform-state-key)...</span>',
+          '<span class="text-emerald-400">[5/5] Enforcing S3 Public Access Block (BlockPublicAcls, BlockPublicPolicy)...</span>',
+          '<span class="text-emerald-400">[6/5] Creating DynamoDB Lock Table: terraform-locks (PAY_PER_REQUEST)...</span>',
+          '<span class="text-slate-300">      + LockID (String, HASH) configured</span>',
+          '<span class="text-teal-300 font-bold">==> Backend infrastructure ready. You may now run terraform init.</span>'
+        ];
+      },
+      fmt: function() {
+        return [
+          '<span class="text-teal-400">==> Executing: terraform fmt -check -recursive</span>',
+          '<span class="text-slate-400">Scanning environments/ and modules/ for formatting conformance...</span>',
+          '<span class="text-emerald-400">&#x2714; environments/dev/main.tf: formatted</span>',
+          '<span class="text-emerald-400">&#x2714; modules/vpc/main.tf: formatted</span>',
+          '<span class="text-emerald-400">&#x2714; modules/ec2/main.tf: formatted</span>',
+          '<span class="text-emerald-400">&#x2714; modules/s3/main.tf: formatted</span>',
+          '<span class="text-emerald-400 font-bold">&#x2714; Success: All Terraform configuration files match canonical format.</span>'
+        ];
+      },
+      init: function(env, flags) {
+        return [
+          '<span class="text-teal-400">==> Initializing the backend...</span>',
+          '<span class="text-slate-300">Successfully configured the backend "s3"! Terraform will automatically</span>',
+          '<span class="text-slate-300">use this backend unless the backend configuration changes.</span>',
+          '<span class="text-slate-500">  State key: ' + env + '/terraform.tfstate</span>',
+          '<span class="text-slate-500">  Lock table: terraform-locks</span>',
+          '<span class="text-teal-400">==> Initializing provider plugins...</span>',
+          '<span class="text-slate-300">- Finding hashicorp/aws versions matching "~> 5.0"...</span>',
+          '<span class="text-slate-300">- Installing hashicorp/aws v5.45.0...</span>',
+          '<span class="text-slate-300">- Installed hashicorp/aws v5.45.0 (signed by HashiCorp)</span>',
+          '<span class="text-emerald-400 font-bold">&#x2714; Terraform has been successfully initialized!</span>',
+          '<span class="text-slate-400">You may now begin working with Terraform. Try running "terraform plan" to see</span>',
+          '<span class="text-slate-400">any changes that are required for your infrastructure.</span>'
+        ];
+      },
+      validate: function() {
+        return [
+          '<span class="text-teal-400">==> Executing: terraform validate</span>',
+          '<span class="text-slate-400">Validating configuration syntax, provider schemas, and module references...</span>',
+          '<span class="text-emerald-400 font-bold">&#x2714; Success! The configuration is valid.</span>'
+        ];
+      },
+      plan: function(env, flags) {
+        const targetStr = flags.targetvpc ? ' (Targeting: module.vpc only)' : '';
+        const cidrs = { dev: '10.10.0.0/16', staging: '10.20.0.0/16', prod: '10.30.0.0/16' };
+        const azCount = env === 'prod' ? '3' : '2';
+        return [
+          '<span class="text-teal-400">==> Acquiring state lock in DynamoDB table "terraform-locks"...</span>',
+          '<span class="text-slate-400">Acquired lock with LockID: c3f9b20e-8a1...</span>',
+          '<span class="text-slate-300">Refreshing Terraform state in S3: ' + env + '/terraform.tfstate</span>',
+          '<span class="text-slate-400">Evaluating plan with -var-file="' + env + '.tfvars"' + targetStr + '...</span>',
+          '<span class="text-slate-300">------------------------------------------------------------------------</span>',
+          '<span class="text-teal-300 font-bold">Terraform will perform the following actions:</span>',
+          '<span class="text-emerald-400">  + module.vpc.aws_vpc.this</span>',
+          '<span class="text-slate-300">      cidr_block: "' + cidrs[env] + '"</span>',
+          '<span class="text-slate-300">      enable_dns_hostnames: true</span>',
+          '<span class="text-emerald-400">  + module.vpc.aws_subnet.public[' + azCount + ' subnets]</span>',
+          '<span class="text-slate-300">      map_public_ip_on_launch: false (Security default)</span>',
+          '<span class="text-emerald-400">  + module.vpc.aws_subnet.private[' + azCount + ' subnets]</span>',
+          '<span class="text-emerald-400">  + module.ec2.aws_instance.this</span>',
+          '<span class="text-slate-300">      instance_type: "' + (env === 'prod' ? 't3.large' : 't3.micro') + '"</span>',
+          '<span class="text-slate-300">      metadata_options.http_tokens: "required" (IMDSv2 Enforced)</span>',
+          '<span class="text-slate-300">      root_block_device.encrypted: true (KMS EBS)</span>',
+          '<span class="text-teal-400 font-bold">Plan: ' + (env === 'prod' ? '8' : '6') + ' to add, 0 to change, 0 to destroy.</span>',
+          '<span class="text-slate-400">&#x2714; State lock released successfully.</span>'
+        ];
+      },
+      apply: function(env, flags) {
+        return [
+          '<span class="text-teal-400">==> Acquiring state lock in DynamoDB...</span>',
+          '<span class="text-slate-300">Lock acquired. Initiating execution plan...</span>',
+          '<span class="text-yellow-400">module.vpc.aws_vpc.this: Creating...</span>',
+          '<span class="text-emerald-400">module.vpc.aws_vpc.this: Creation complete after 2s [id=vpc-0d481f9a]</span>',
+          '<span class="text-yellow-400">module.vpc.aws_subnet.public[0]: Creating...</span>',
+          '<span class="text-emerald-400">module.vpc.aws_subnet.public[0]: Creation complete after 3s [id=subnet-01]</span>',
+          '<span class="text-yellow-400">module.ec2.aws_instance.this: Creating...</span>',
+          '<span class="text-emerald-400">module.ec2.aws_instance.this: Creation complete after 12s [id=i-0e8fa712c]</span>',
+          '<span class="text-emerald-400 font-bold">&#x2714; Apply complete! Resources: 6 added, 0 changed, 0 destroyed.</span>',
+          '<span class="text-slate-300 font-bold">Outputs:</span>',
+          '<span class="text-teal-300">  vpc_id = "vpc-0d481f9a"</span>',
+          '<span class="text-teal-300">  name_prefix = "myapp-' + env + '"</span>',
+          '<span class="text-slate-400">&#x2714; State lock released in DynamoDB.</span>'
+        ];
+      }
+    };
 
     function setCliParam(param, val) {
       cliState[param] = val;
@@ -1631,54 +1834,145 @@
           const e = envs[i];
           const btn = document.getElementById("cli-env-" + e);
           if (e === val) {
-            btn.className = "py-2 px-3 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition";
+            btn.className = "py-2 px-2 text-center rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition";
           } else {
-            btn.className = "py-2 px-3 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition";
+            btn.className = "py-2 px-2 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition";
           }
         }
       }
 
       if (param === 'op') {
-        const ops = ['init', 'plan', 'apply', 'bootstrap'];
+        const ops = ['bootstrap', 'fmt', 'init', 'validate', 'plan', 'apply'];
         for (let i = 0; i < ops.length; i++) {
           const o = ops[i];
           const btn = document.getElementById("cli-op-" + o);
-          if (o === val) {
-            btn.className = "py-2 px-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition";
-          } else {
-            btn.className = "py-2 px-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition";
+          if (btn) {
+            if (o === val) {
+              btn.className = "py-2 px-1 text-center rounded-lg bg-amber-500 text-slate-950 font-bold border border-amber-400 transition";
+            } else {
+              btn.className = "py-2 px-1 text-center rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition";
+            }
           }
         }
       }
 
       updateCliSimulator();
+      runCliSimulation();
+    }
+
+    function toggleFlag(flagKey) {
+      cliState.flags[flagKey] = document.getElementById("flag-" + flagKey).checked;
+      updateCliSimulator();
+    }
+
+    function setTerminalTab(tab) {
+      cliState.currentTab = tab;
+      const outPane = document.getElementById("terminal-output-pane");
+      const cmdPane = document.getElementById("terminal-command-pane");
+      const outBtn = document.getElementById("tab-output-btn");
+      const cmdBtn = document.getElementById("tab-command-btn");
+
+      if (tab === 'output') {
+        outPane.classList.remove('hidden');
+        cmdPane.classList.add('hidden');
+        outBtn.className = "px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold transition";
+        cmdBtn.className = "px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition";
+      } else {
+        outPane.classList.add('hidden');
+        cmdPane.classList.remove('hidden');
+        cmdBtn.className = "px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold transition";
+        outBtn.className = "px-2.5 py-0.5 rounded text-slate-400 hover:text-white transition";
+      }
     }
 
     function updateCliSimulator() {
       const cwdEl = document.getElementById("cli-cwd");
       const cmdEl = document.getElementById("cli-command-output");
       const expEl = document.getElementById("cli-explanation");
+      const envBadge = document.getElementById("cli-env-badge");
+      const opDesc = document.getElementById("cli-op-desc");
+      const termEnvText = document.getElementById("term-env-text");
 
       const env = cliState.env;
       const op = cliState.op;
+      const flags = cliState.flags;
+
+      const cidrs = { dev: "10.10.0.0/16", staging: "10.20.0.0/16", prod: "10.30.0.0/16" };
+      envBadge.textContent = "Active: " + env + " (" + cidrs[env] + ")";
+      termEnvText.textContent = "Target: environments/" + env;
+
+      let generatedCmd = "";
+      let workingDir = "environments/" + env;
+      let explanation = "";
 
       if (op === 'bootstrap') {
-        cwdEl.textContent = "# Working directory: repo root (scripts/)";
-        cmdEl.textContent = "./scripts/setup.sh";
-        expEl.innerHTML = "<strong>Bootstrap Explanation:</strong> Runs one-time AWS CLI calls to provision the S3 remote state bucket with KMS encryption and DynamoDB distributed locking table before any Terraform runs.";
+        workingDir = "repo root";
+        generatedCmd = "./scripts/setup.sh";
+        opDesc.textContent = "One-time bootstrap: S3 bucket + DynamoDB lock table";
+        explanation = "Runs one-time AWS CLI calls to provision the S3 remote state bucket with KMS encryption and DynamoDB distributed locking table before any Terraform commands are run.";
+      } else if (op === 'fmt') {
+        workingDir = "repo root";
+        generatedCmd = "terraform fmt -check -recursive";
+        opDesc.textContent = "Check code formatting style recursively";
+        explanation = "Enforces standard HashiCorp HCL style conventions across all environments and reusable modules without modifying state.";
       } else if (op === 'init') {
-        cwdEl.textContent = "# Working directory: environments/" + env;
-        cmdEl.textContent = "cd environments/" + env + " && terraform init -backend-config=backend.tfvars";
-        expEl.innerHTML = "<strong>Why -backend-config matters:</strong> Injects the isolated state key (<code class='text-amber-300'>" + env + "/terraform.tfstate</code>) dynamically into the partial S3 backend without modifying code.";
+        generatedCmd = "terraform init";
+        if (flags.backend) generatedCmd += " -backend-config=backend.tfvars";
+        opDesc.textContent = "Initialize backend & download AWS provider plugins";
+        explanation = "Partial backend configuration injects the isolated state key (" + env + "/terraform.tfstate) dynamically into the S3 backend without hardcoding keys across environments.";
+      } else if (op === 'validate') {
+        generatedCmd = "terraform validate";
+        opDesc.textContent = "Verify syntax, providers, and module inputs";
+        explanation = "Validates configuration syntax and consistency without accessing remote state or cloud services.";
       } else if (op === 'plan') {
-        cwdEl.textContent = "# Working directory: environments/" + env;
-        cmdEl.textContent = "cd environments/" + env + " && terraform plan -var-file=\"" + env + ".tfvars\"";
-        expEl.innerHTML = "<strong>Why -var-file matters:</strong> Loads environment-specific parameters such as VPC CIDRs and AWS region into the reusable modules, producing a deterministic, drift-free execution plan.";
+        generatedCmd = "terraform plan";
+        if (flags.varfile) generatedCmd += ' -var-file="' + env + '.tfvars"';
+        if (flags.targetvpc) generatedCmd += " -target=module.vpc";
+        opDesc.textContent = "Dry-run execution preview of resources to create";
+        explanation = "Calculates the exact infrastructure diff between desired HCL code and the current AWS environment, acquiring a temporary state lock in DynamoDB.";
       } else if (op === 'apply') {
-        cwdEl.textContent = "# Working directory: environments/" + env;
-        cmdEl.textContent = "cd environments/" + env + " && terraform apply -var-file=\"" + env + ".tfvars\" -auto-approve";
-        expEl.innerHTML = "<strong>Safety notice:</strong> Executes the plan against AWS with state locked in DynamoDB. In production environments, this step is gated behind GitHub Actions approval environments.";
+        generatedCmd = "terraform apply";
+        if (flags.varfile) generatedCmd += ' -var-file="' + env + '.tfvars"';
+        if (flags.autoapprove) generatedCmd += " -auto-approve";
+        if (flags.targetvpc) generatedCmd += " -target=module.vpc";
+        opDesc.textContent = "Deploy infrastructure changes into AWS environment";
+        explanation = "Applies the approved plan against AWS with distributed state locking active. In CI/CD, this step is gated behind GitHub Actions approval environments.";
       }
+
+      cwdEl.textContent = "cd " + workingDir + " &&";
+      cmdEl.textContent = generatedCmd;
+      expEl.innerHTML = explanation;
+    }
+
+    function runCliSimulation() {
+      const outPane = document.getElementById("terminal-output-pane");
+      const statusDot = document.getElementById("term-status-dot");
+      const statusText = document.getElementById("term-status-text");
+
+      statusDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-ping";
+      statusText.textContent = "Running...";
+
+      outPane.innerHTML = '<div class="text-amber-400 font-mono"><span class="animate-pulse">&#x25B6;</span> Executing command in virtual terminal...</div>';
+
+      const op = cliState.op;
+      const env = cliState.env;
+      const flags = cliState.flags;
+
+      setTimeout(function() {
+        const logFunc = CLI_LOGS[op] || CLI_LOGS['init'];
+        const lines = logFunc(env, flags);
+
+        outPane.innerHTML = "";
+        for (let i = 0; i < lines.length; i++) {
+          const div = document.createElement("div");
+          div.innerHTML = lines[i];
+          outPane.appendChild(div);
+        }
+
+        statusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        statusText.textContent = "Exited code 0 (Success)";
+        lucide.createIcons();
+      }, 350);
     }
 
     function copyCliCommand() {
